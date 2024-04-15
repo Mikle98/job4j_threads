@@ -8,8 +8,8 @@ public class ConcurrentOutput {
         Thread second = new Thread(
                 () -> System.out.println(Thread.currentThread().getName())
         );
-        another.start();
         second.start();
+        another.start();
         System.out.println(Thread.currentThread().getName());
     }
 }
