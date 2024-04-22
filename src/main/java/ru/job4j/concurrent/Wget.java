@@ -19,24 +19,25 @@ public class Wget implements Runnable {
 
     @Override
     public void run() {
-        var startAt = System.currentTimeMillis();
-        var file = new File("tmp.xml");
+        var file = new File(this.url.substring(this.url.lastIndexOf('/') + 1));
         String url = this.url;
         try (var input = new URL(url).openStream();
              var output = new FileOutputStream(file)) {
-            System.out.println("Open connection: " + (System.currentTimeMillis() - startAt) + " ms");
-            var dataBuffer = new byte[512];
             int bytesRead;
-            while ((bytesRead = input.read(dataBuffer, 0, dataBuffer.length)) != -1) {
-                var downloadAt = System.nanoTime();
-                output.write(dataBuffer, 0, bytesRead);
-                System.out.println("Read 512 bytes : " + (System.nanoTime() - downloadAt) + " nano.");
-                if (this.speed < 6000) {
-                    try {
-                        Thread.sleep(((1000000 / (System.nanoTime() - downloadAt)) * 512) / this.speed);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+            long totalBytes = 0;
+            var startAt = System.currentTimeMillis();
+            while ((bytesRead = input.read(new byte[this.speed], 0, new byte[this.speed].length)) != -1) {
+                output.write(new byte[this.speed], 0, bytesRead);
+                totalBytes += bytesRead;
+                if (totalBytes >= this.speed) {
+                    if ((System.currentTimeMillis() - startAt) > 1000) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
+                    totalBytes = 0;
                 }
             }
         } catch (IOException e) {
