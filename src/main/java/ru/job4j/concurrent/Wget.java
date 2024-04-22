@@ -30,7 +30,7 @@ public class Wget implements Runnable {
                 output.write(new byte[this.speed], 0, bytesRead);
                 totalBytes += bytesRead;
                 if (totalBytes >= this.speed) {
-                    if ((System.currentTimeMillis() - startAt) > 1000) {
+                    if ((System.currentTimeMillis() - startAt) < 1000) {
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
@@ -38,6 +38,7 @@ public class Wget implements Runnable {
                         }
                     }
                     totalBytes = 0;
+                    startAt = System.currentTimeMillis();
                 }
             }
         } catch (IOException e) {
