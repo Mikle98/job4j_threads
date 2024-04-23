@@ -26,8 +26,8 @@ public class Wget implements Runnable {
             int bytesRead;
             long totalBytes = 0;
             var startAt = System.currentTimeMillis();
-            while ((bytesRead = input.read(new byte[this.speed], 0, new byte[this.speed].length)) != -1) {
-                output.write(new byte[this.speed], 0, bytesRead);
+            while ((bytesRead = input.read(new byte[1024], 0, new byte[1024].length)) != -1) {
+                output.write(new byte[1024], 0, bytesRead);
                 totalBytes += bytesRead;
                 if (totalBytes >= this.speed) {
                     if ((System.currentTimeMillis() - startAt) < 1000) {
