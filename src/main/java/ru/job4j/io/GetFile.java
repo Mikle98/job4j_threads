@@ -23,14 +23,14 @@ public class GetFile {
 
     public String content(Predicate<Character> filter) throws IOException {
         try (InputStream input = new FileInputStream(file)) {
-            String output = "";
+            StringBuilder output = new StringBuilder();
             int data;
             while ((data = input.read(new byte[1024], 0, new byte[1024].length)) != -1) {
                 if (filter.test((char) data)) {
-                    output += (char) data;
+                    output.append((char) data);
                 }
             }
-            return output;
+            return output.toString();
         }
     }
 }
