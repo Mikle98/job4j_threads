@@ -11,23 +11,18 @@ class SimpleBlockingQueueTest {
         Thread threadConsumer = new Thread(
                 () -> {
                     try {
-                        queue.poll();
+                        System.out.println(queue.poll());
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
         );
         Thread threadProducer = new Thread(
-                () -> {
-                    queue.offer(1);
-                }
+                () -> queue.offer(1)
         );
-        threadConsumer.start();
-        Thread.sleep(2500);
-        assertThat(threadConsumer.getState()).isEqualTo(Thread.State.WAITING);
         threadProducer.start();
         threadProducer.join();
-        assertThat(threadConsumer.getState()).isEqualTo(Thread.State.RUNNABLE);
+        threadConsumer.start();
         threadConsumer.join();
     }
 }

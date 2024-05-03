@@ -4,26 +4,29 @@ import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 @ThreadSafe
 public class SimpleBlockingQueue<T> {
     @GuardedBy("this")
-    private Queue<T> queue = new LinkedList<>();
+    private final Queue<T> queue = new LinkedList<>();
 
-    public void offer(T value) {
-        synchronized (queue) {
-            queue.offer(value);
-            queue.notify();
-        }
+    public synchronized void offer(T value) {
+        queue.offer(value);
+        this.notifyAll();
     }
 
-    public T poll() throws InterruptedException {
-        synchronized (queue) {
-            while (queue.isEmpty()) {
-                queue.wait();
+    public synchronized T poll() throws InterruptedException {
+        while (queue.isEmpty()) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-            return queue.poll();
         }
+        T result = queue.poll();
+        this.notifyAll();
+        return result;
     }
 }
