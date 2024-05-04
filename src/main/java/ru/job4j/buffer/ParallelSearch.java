@@ -33,5 +33,6 @@ public class ParallelSearch {
         produser.start();
         produser.join();
         consumer.interrupt();
+
     }
 }
