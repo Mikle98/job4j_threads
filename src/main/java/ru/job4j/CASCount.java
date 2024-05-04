@@ -10,18 +10,13 @@ public class CASCount {
     private final AtomicInteger count = new AtomicInteger();
 
     public void increment() {
-        try {
-            count.incrementAndGet();
-        } catch (UnsupportedOperationException e) {
-            throw new UnsupportedOperationException("Count is not impl.");
-        }
+        int newCount;
+        do {
+            newCount = count.get() + 1;
+        } while (!count.compareAndSet(count.get(), newCount));
     }
 
     public int get() {
-        try {
-            return count.get();
-        } catch (UnsupportedOperationException e) {
-            throw new UnsupportedOperationException("Count is not impl.");
-        }
+        return count.get();
     }
 }
