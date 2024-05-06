@@ -9,10 +9,10 @@ import java.util.stream.IntStream;
 public class ThreadPool {
     private final List<Thread> threads = new LinkedList<>();
     private final SimpleBlockingQueue<Runnable> tasks;
-    private int size = Runtime.getRuntime().availableProcessors();
 
     public ThreadPool(int value) {
         tasks = new SimpleBlockingQueue<>(value);
+        int size = Runtime.getRuntime().availableProcessors();
         IntStream.range(0, size)
                 .forEach(iterate ->
                     threads.add(new Thread(
@@ -27,7 +27,7 @@ public class ThreadPool {
                             }
                     ))
                 );
-        startAllThread();
+        threads.forEach(Thread::start);
     }
 
     public void work(Runnable job) throws InterruptedException {
@@ -35,21 +35,21 @@ public class ThreadPool {
     }
 
     public void shutdown() throws InterruptedException {
-        threads.stream()
-                .filter(thread -> Thread.State.RUNNABLE.equals(thread.getState()))
-                .forEach(Thread::interrupt);
+        threads.forEach(Thread::interrupt);
     }
 
-    private void startAllThread() {
-        threads.stream()
-                .forEach(thread -> thread.start());
-    }
-
-    public List<Thread> getAllThread() {
-        return threads;
-    }
-
-    public SimpleBlockingQueue<Runnable> getTask() {
-        return tasks;
+    public static void main(String[] args) throws InterruptedException {
+        ThreadPool threadPool = new ThreadPool(10);
+        IntStream.range(0, 100)
+                .forEach(iterate -> {
+                        try {
+                            threadPool.work(System.out::println);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                });
+        threadPool.shutdown();
+        System.out.println(threadPool.tasks.isEmpty());
+        threadPool.threads.forEach(thread -> System.out.println(thread.getState()));
     }
 }
